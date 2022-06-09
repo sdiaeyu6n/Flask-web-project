@@ -1,60 +1,67 @@
 import os
-from flask import Flask, render_template, redirect, request, url_for
+from flask import Flask, render_template, redirect, request, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-# from models import db
-# from models import User, Post
+from models import db
+from models import User, Post
 
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask import session
-
-from forms import RegisterForm
+from flask_wtf.csrf import CSRFProtect
+from forms import RegisterForm, LoginForm
 
 app = Flask(__name__)
+db.init_app(app)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shoppingmall.sqlite3'
 app.config['SECRET_KEY'] = "software engineering"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+csrf = CSRFProtect()
+csrf.init_app(app)
 
-class User(db.Model): # 데이터 모델을 나타내는 객체 선언
-    __tablename__ = 'user'
+# db = SQLAlchemy(app)
 
-    userid = db.Column(db.String(32), primary_key=True)
-    username = db.Column(db.String(100), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False)
+# class User(db.Model): # 데이터 모델을 나타내는 객체 선언
+#     __tablename__ = 'user'
 
-    posts = db.relationship('Post', backref="author", lazy=True) # 이후 사용자를 user라는 변수에 저장하면, user.posts를 통해 사용자의 product(post)에 접근가능
-    # db.relationship(객체이름, post.author를 통해 product owner에게 접근 가능)
+#     userid = db.Column(db.String(32), primary_key=True)
+#     username = db.Column(db.String(100), unique=True, nullable=False)
+#     email = db.Column(db.String(120), unique=True, nullable=False)
+#     password = db.Column(db.String(200), nullable=False)
 
-    def __init__(self, userid, username, email, password):
-        self.userid = userid
-        self.username = username
-        self.email = email
-        self.set_password(password)
+#     posts = db.relationship('Post', backref="author", lazy=True) # 이후 사용자를 user라는 변수에 저장하면, user.posts를 통해 사용자의 product(post)에 접근가능
+#     # db.relationship(객체이름, post.author를 통해 product owner에게 접근 가능)
 
-    def __repr__(self):
-        return f"<user('{self.userid}', '{self.username}', '{self.email}')>"
+#     def __init__(self, userid, username, email, password):
+#         self.userid = userid
+#         self.username = username
+#         self.email = email
+#         self.set_password(password)
 
-    def set_password(self, password):
-        self.password = generate_password_hash(password) # 문자열(비밀번호)을 암호화된 해시로 바꿔줌
+#     def __repr__(self):
+#         return f"<user('{self.userid}', '{self.username}', '{self.email}')>"
 
-    def check_password(self, password):
-        return check_password_hash(self.password, password) # 암호화된 해시와 문자열을 비교해서 문자열이 동일한 해시를 갖는 경우 참을 반환
+#     def set_password(self, password):
+#         self.password = generate_password_hash(password) # 문자열(비밀번호)을 암호화된 해시로 바꿔줌
 
-
-class Post(db.Model):
-    __table_name__ = 'post'
-
-    userid = db.Column(db.Integer, primary_key=True)
-    keyword = db.Column(db.String(120), unique=True, nullable=False)
-    content = db.Column(db.Text)
-
-    user_id = db.Column(db.Integer, db.ForeignKey('user.userid')) # user 테이블의 id를 외래키로 하는 user_id 컬럼 생성
+#     def check_password(self, password):
+#         return check_password_hash(self.password, password) # 암호화된 해시와 문자열을 비교해서 문자열이 동일한 해시를 갖는 경우 참을 반환
 
 
+# class Post(db.Model):
+#     __table_name__ = 'post'
+
+#     userid = db.Column(db.String(32), primary_key=True)
+#     keyword = db.Column(db.String(120), unique=True, nullable=False)
+#     content = db.Column(db.Text)
+
+#     user_id = db.Column(db.String(32), db.ForeignKey('user.userid')) # user 테이블의 id를 외래키로 하는 user_id 컬럼 생성
+
+
+# 일단 하드코딩이에요 ~~ db 에서 가져오는 걸로 바꿀 것임
 posts = [
     {
         'author': {
@@ -84,6 +91,7 @@ def mainpage():
 
 @app.route('/registration', methods = ['GET', 'POST'])
 def registration():
+    # form 관리 - WTF 패키지 이용
     form = RegisterForm()
     if form.validate_on_submit(): # 내용이 채워지지 않은 항목이 있는지 체크
         
@@ -120,9 +128,31 @@ def registration():
     #         return "회원가입 완료"
     #     return redirect('/')
 
-# @app.route('/login', methods = ['GET', 'POST'])
-# def login():
-#     form = LoginForm()
+@app.route('/login', methods = ['GET', 'POST'])
+def login():
+    form = LoginForm() # 로그인폼
+    if form.validate_on_submit() or request.method == 'POST':
+        error = None
+        usertable = User.query.filter_by(userid=form.userid.data).first()
+        if not usertable:
+            error = "존재하지 않는 사용자입니다."
+        elif not check_password_hash(usertable.password, form.password.data):
+            error = "비밀번호가 올바르지 않습니다."
+        if error is None:
+            session.clear()
+            session['userid'] = form.data.get('userid') # form에서 가져온 userid를 세션에 저장
+            return redirect('/mainpage')
+        flash(error)
+
+        # print('{} 로그인' .format(form.data.get('userid')))
+        # session['userid'] = form.data.get('userid') # form에서 가져온 userid를 세션에 저장
+        # return redirect('/mainpage')
+    return render_template('login.html', form=form)
+
+@app.route('/logout', methods = ['GET', 'POST'])
+def logout():
+    session.pop('userid', None)
+    return redirect('/mainpage')
 
 
 @app.route('/mypage')
@@ -146,3 +176,4 @@ if __name__ == '__main__':
     db.session.rollback()
 
     app.run(debug = True)
+
