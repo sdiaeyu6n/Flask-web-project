@@ -1,0 +1,59 @@
+{% extends 'layout.html' %}
+ 
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-8">
+      {% for post in posts %}
+      <article>
+        <hr>
+        <div class="row">
+          <div class="col">
+            <a class="h1" href="#">{{ post.keyword }}</a>
+            <p class="text-justify">{{ post.content }}</p>
+          </div>
+          <div class="col-md-2 d-flex flex-column">
+            <img class="rounded-circle mx-auto" src="#" data-src="holder.js/64x64" width="64px" height="64px">
+            <p class="text-muted text-center">{{ post.author.username }}</p>
+          </div>
+        </div>
+        <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
+      </article>
+      {% endfor %}
+    </div>
+    <script>
+      /////////여기 코드 짜야됨      
+      window.onload = function() {//윈도우가 열리면 & 팔로우 중이 아니면
+          document.getElementById("F").onclick = follow(current_user,userid) {
+              alert("Follow");
+          }
+
+          // if 현재 팔로우 중이면
+          // document.getElementById("UF").onclick = function(current_user,userid) {
+          //     alert("Unfollow");
+          // }
+      }
+      
+    </script>
+<body>
+
+  <input type=button style="WIDTH: 60pt; HEIGHT: 60pt" value="Follow" id="F"/>
+  <input type=button style="WIDTH: 60pt; HEIGHT: 60pt" value="Unfollow" id="UF"/>
+
+</body>
+    <aside class="col-md-4 my-3">
+      <h2>사이드 바</h2>
+      <ul class="list-group">
+        <li class="list-group-item">사이드바 아이템1</li>
+        <li class="list-group-item">사이드바 아이템2</li>
+        <li class="list-group-item">사이드바 아이템3</li>
+        <li class="list-group-item">사이드바 아이템4</li>
+      </ul>
+    </aside>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  <script src=https://cdnjs.cloudflare.com/ajax/libs/holder/2.9.4/holder.min.js></script>
+{% endblock %}
