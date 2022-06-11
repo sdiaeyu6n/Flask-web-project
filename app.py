@@ -23,6 +23,7 @@ db.init_app(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shoppingmall.sqlite3'
 app.config['SECRET_KEY'] = "software engineering"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = './static/img'
 
 # login_manager = LoginManager(app)
 # login_manager.login_view = 'auth.login'
@@ -169,20 +170,28 @@ def upload_product():
         price = form.data.get('price')
         userid = session['userid']
         author = User.query.filter_by(userid=userid).first()
-        print(author)
-        print(author.username)
-        print(type(author))
+        # print(author)
+        # print(author.username)
+        # print(type(author))
 
-        posttable = Post(keyword=keyword, content=content, price=price, author=author)
+        f = request.files['image']
+        f.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(f.filename)))
 
+        posttable = Post(keyword=keyword, content=content, price=price, status="판매중", author=author, image=f.filename)
+        # 이미지 파일명을 db에 저장, 이미지는 로컬에 저장, 이미지 경로는 config 선언
+    
         db.session.add(posttable)
         db.session.commit()
 
-        # f = request.files['image']
-        # f.save(secure_filename(f.filename))
         return '상품이 업로드 되었습니다.'
     
     return render_template('upload_product.html', title='upload', form=form)
+
+@app.route('/product_detail/<id>', methods = ['GET', 'POST'])
+def product_detail(id):
+    post = Post.query.filter_by(id = id).first()
+    print(post)
+    return render_template('product_detail.html', title='detail', post=post)
 
 # @app.route('/follow/<username>', methods=['POST'])
 # def follow(username):

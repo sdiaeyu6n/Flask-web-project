@@ -9,7 +9,7 @@
         <hr>
         <div class="row">
           <div class="col">
-            <a class="h2" href="#">{{ post.content }}</a>
+            <a class="h2" href="{{ url_for('product_detail', id=post.id) }} ">{{ post.content }}</a>
             <p class="text-justify">{{ post.keyword }}</p>
           </div>
           <div class="col-md-2 d-flex flex-column">
