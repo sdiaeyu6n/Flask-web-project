@@ -3,8 +3,8 @@ from flask import Flask, render_template, redirect, request, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from models import db
 from models import User, Post
-from flask_login import LoginManager, current_user
-from flask_login import UserMixin
+# from flask_login import LoginManager, current_user, login_user, UserMixin
+
 from models import login_manager
 
 # from flask_migrate import Migrate
@@ -27,30 +27,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # login_manager = LoginManager(app)
 # login_manager.login_view = 'auth.login'
 
-login_manager.init_app(app)
+# login_manager.init_app(app)
 csrf = CSRFProtect()
 csrf.init_app(app)
 
-
-# 일단 하드코딩이에요 ~~ db 에서 가져오는 걸로 바꿀 것임
-# posts = [
-#     {
-#         'author': {
-#             'username': 'test-user'
-#         },
-#         'title': '첫 번째 포스트',
-#         'content': '첫 번째 포스트 내용입니다.',
-#         'date_posted': datetime.strptime('2018-08-01', '%Y-%m-%d')
-#     },
-#     {
-#         'author': {
-#             'username': 'test-user'
-#         },
-#         'title': '두 번째 포스트',
-#         'content': '두 번째 포스트 내용입니다.',
-#         'date_posted': datetime.strptime('2018-08-03', '%Y-%m-%d')
-#     },
-# ]
 
 @app.route('/')
 def hello():
@@ -61,14 +41,35 @@ def hello():
 def testpage():
     users = User.query.all()
     posts = Post.query.all()
-    return render_template('testpage.html', users = users, posts = posts)
+    print(posts)
+    return render_template('testpage.html', users = users, posts=posts)
 
 
-@app.route('/mainpage')
+@app.route('/mainpage', methods = ['GET', 'POST'])
 def mainpage():
     userid = session.get('userid', None)
     posts = Post.query.all()
-    return render_template('mainpage.html', userid=userid, posts = posts)
+    return render_template('mainpage.html', userid=userid, posts=posts)
+
+
+@app.route('/mypage', methods = ['GET', 'POST'])
+def mypage():
+    # userid = session.get('userid', None)
+    # author = User.query.filter_by(userid=userid).first()
+    # posts = Post.query.all()
+    # posts = Post.query.filter_by(post.author.userid=userid)
+    # print(posts)
+    # p = Post.author
+    # print(p, type(p))
+    # posts2 = User.posts
+    # print(posts2)
+    # Post.query.filter(p.userid = userid)
+    userid = session['userid']
+    author = User.query.filter_by(userid=userid).first()
+    posts = Post.query.filter_by(user_id = author.id)
+
+    return render_template('mypage.html', title = 'mypage', userid=userid, posts=posts)
+
 
 @app.route('/registration', methods = ['GET', 'POST'])
 def registration():
@@ -111,8 +112,10 @@ def registration():
 
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
+    # if current_user.is_authenticated:
+    #     return redirect('mainpage')
     form = LoginForm() # 로그인폼
-    if form.validate_on_submit() or request.method == 'POST':
+    if form.validate_on_submit():
         error = None
         usertable = User.query.filter_by(userid=form.userid.data).first()
         if not usertable:
@@ -130,15 +133,30 @@ def login():
         # return redirect('/mainpage')
     return render_template('login.html', form=form)
 
+# def login():
+#     form = LoginForm() # 로그인폼
+#     if form.validate_on_submit() or request.method == 'POST':
+#         error = None
+#         usertable = User.query.filter_by(userid=form.userid.data).first()
+#         if not usertable:
+#             error = "존재하지 않는 사용자입니다."
+#         elif not check_password_hash(usertable.password, form.password.data):
+#             error = "비밀번호가 올바르지 않습니다."
+#         if error is None:
+#             session.clear()
+#             session['userid'] = form.data.get('userid') # form에서 가져온 userid를 세션에 저장
+#             return redirect('/mainpage')
+#         flash(error)
+
+#         # print('{} 로그인' .format(form.data.get('userid')))
+#         # session['userid'] = form.data.get('userid') # form에서 가져온 userid를 세션에 저장
+#         # return redirect('/mainpage')
+#     return render_template('login.html', form=form)
+
 @app.route('/logout', methods = ['GET', 'POST'])
 def logout():
     session.pop('userid', None)
     return redirect('/mainpage')
-
-
-@app.route('/mypage')
-def mypage():
-    return render_template('mypage.html', title = 'mypage')
 
 
 @app.route('/upload_product', methods = ['GET', 'POST'])
@@ -149,11 +167,13 @@ def upload_product():
         keyword = form.data.get('keyword')
         content = form.data.get('content')
         price = form.data.get('price')
-        u = User.query.get(1)
-    
-        # userid = current_user._get_current_object()
+        userid = session['userid']
+        author = User.query.filter_by(userid=userid).first()
+        print(author)
+        print(author.username)
+        print(type(author))
 
-        posttable = Post(keyword=keyword, content=content, price=price, author=u)
+        posttable = Post(keyword=keyword, content=content, price=price, author=author)
 
         db.session.add(posttable)
         db.session.commit()
@@ -205,6 +225,7 @@ def upload_product():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all() # db 생성
+        # print(Post.query.all())
     db.session.rollback()
 
     app.run(debug = True)

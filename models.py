@@ -1,13 +1,13 @@
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 # from app import login_manager
-from flask_login import LoginManager, current_user, UserMixin
+from flask_login import LoginManager, UserMixin
 
 db = SQLAlchemy() # 데이터베이스 저장
 login_manager = LoginManager()
-login_manager.login_view = 'auth.login'
 
-class User(db.Model):
+
+class User(UserMixin, db.Model):
     __table_name__ = 'user'
  
     id = db.Column(db.Integer, primary_key=True) # 기본 키는 데이터타입 integer, 기본키로 설정한 속성은 자동으로 1씩 증가
@@ -44,25 +44,18 @@ class Post(db.Model):
     keyword = db.Column(db.String(120))
     content = db.Column(db.Text)
     price = db.Column(db.Integer)
+    
  
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
  
     def __repr__(self):
-        return f"<Post('{self.id}', '{self.title}')>"
+        return f"<Post('{self.keyword}', '{self.content}', '{self.price}')>"
 
     # def __init__(self, keyword, content, price):
     #     self.keyword = keyword
     #     self.content = content
     #     self.price = price
 
-
-# @login_manager._load_user
-# def load_user(userid):
-#     return User.query.get(int(userid))
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
 
 
 # class User(db.Model): # 데이터 모델을 나타내는 객체 선언

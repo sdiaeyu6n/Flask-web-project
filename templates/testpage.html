@@ -4,6 +4,7 @@
 <body>
     <table>
         <thead>
+            <tr>id</tr>
             <tr>userid</tr>
             <tr>username</tr>
             <tr>email</tr>
@@ -13,6 +14,7 @@
         <tbody>
             {% for user in users %}
             <tr>
+                <td>{{ user.id }}</td>
                 <td>{{ user.userid }}</td>
                 <td>{{ user.username }}</td>
                 <td>{{ user.email }}</td>
@@ -27,14 +29,17 @@
             <tr>keyword</tr>
             <tr>content</tr>
             <tr>price</tr>
+            <tr>user_id</tr>
         </thead>
 
         <tbody>
             {% for post in posts %}
             <tr>
+                <td>{{ post.id }}</td>
                 <td>{{ post.keyword }}</td>
                 <td>{{ post.content }}</td>
                 <td>{{ post.price }}</td>
+                <td>{{ post.author }}</td>
             </tr>
             {% endfor %}
         </tbody>
