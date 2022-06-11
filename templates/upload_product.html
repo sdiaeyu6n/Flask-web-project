@@ -1,16 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset = "utf-8">
-</head>
-<body>
-    <div class = "container">
-        <form action = "{{url_for('upload_product')}}" method = "POST" enctype = "multipart/form-data">
-            <input type = "text" name = "keyword"/>
-            <input type = "text" name = "description"/>
-            <input type = "file" name = "image"/>
-            <input type = "submit"/>
-        </form>
-    </div>
-</body>
-</html>
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class = "container">
+    <form action = "{{url_for('upload_product')}}" method = "POST" enctype = "multipart/form-data">
+        {{form.csrf_token}}
+        <input type = "text" name = "keyword"/>
+        <input type = "text" name = "content"/>
+        <input type = "text" name = "price"/>
+        <!-- <input type = "file" name = "image"/> -->
+        <input type = "submit"/>
+    </form>
+</div>
+{% endblock %}
+
+
+<!-- <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+<div class="container my-3">
+    <form action="{{ url_for('upload_product') }}" method= "POST" class="my-3">
+        <div class="mb-3">
+            <textarea name="content" id="content" class="form-control" rows="10"></textarea>
+        </div>
+        <input type="submit" value="업로드" class="btn btn-primary">
+    </form>
+
+
+https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-v-user-logins -->

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+    <table>
+        <thead>
+            <tr>userid</tr>
+            <tr>username</tr>
+            <tr>email</tr>
+            <tr>password</tr>
+        </thead>
+
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.userid }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.password }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <table>
+        <thead>
+            <tr>keyword</tr>
+            <tr>content</tr>
+            <tr>price</tr>
+        </thead>
+
+        <tbody>
+            {% for post in posts %}
+            <tr>
+                <td>{{ post.keyword }}</td>
+                <td>{{ post.content }}</td>
+                <td>{{ post.price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

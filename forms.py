@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField
-from wtforms import PasswordField, SubmitField
+from wtforms import PasswordField, SubmitField, IntegerField
 from wtforms.validators import DataRequired, EqualTo
-from models import User
+from models import User, Post
 from werkzeug.security import generate_password_hash, check_password_hash
 
 class RegisterForm(FlaskForm):
@@ -33,3 +33,9 @@ class LoginForm(FlaskForm):
 
     userid = StringField('userid', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
+
+
+class PostForm(FlaskForm):
+    keyword = StringField('keyword', validators=[DataRequired()])
+    content = StringField('content', validators=[DataRequired()])
+    price = IntegerField('price', validators=[DataRequired()])

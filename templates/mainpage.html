@@ -9,37 +9,19 @@
         <hr>
         <div class="row">
           <div class="col">
-            <a class="h1" href="#">{{ post.keyword }}</a>
-            <p class="text-justify">{{ post.content }}</p>
+            <a class="h2" href="#">{{ post.content }}</a>
+            <p class="text-justify">{{ post.keyword }}</p>
           </div>
           <div class="col-md-2 d-flex flex-column">
             <img class="rounded-circle mx-auto" src="#" data-src="holder.js/64x64" width="64px" height="64px">
-            <p class="text-muted text-center">{{ post.author.username }}</p>
+            <p class="text-muted text-center">{{ post.author }}</p>
           </div>
         </div>
-        <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
+        <small class="text-muted">{{ post.price }} 원</small>
       </article>
       {% endfor %}
     </div>
-    <script>
-      /////////여기 코드 짜야됨      
-      window.onload = function() {//윈도우가 열리면 & 팔로우 중이 아니면
-          document.getElementById("F").onclick = follow(current_user,userid)
-              alert("Follow");
-          }
-
-          // if 현재 팔로우 중이면
-          // document.getElementById("UF").onclick = function(current_user,userid) {
-          //     alert("Unfollow");
-          // }
-      
-    </script>
-<body>
-
-  <input type=button style="WIDTH: 60pt; HEIGHT: 60pt" value="Follow" id="F"/>
-  <input type=button style="WIDTH: 60pt; HEIGHT: 60pt" value="Unfollow" id="UF"/>
-
-</body>
+     
     <aside class="col-md-4 my-3">
       <h2>사이드 바</h2>
       <ul class="list-group">
